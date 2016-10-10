@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DataLogger</class>
+ <widget class="QMainWindow" name="DataLogger">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>479</width>
+    <height>404</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>DataLogger</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QFrame" name="controlFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>500</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QPushButton" name="recordButton">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Record</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QFrame" name="serialFrame">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="portLabel">
+            <property name="text">
+             <string>Serial Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="Line" name="portLine">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QComboBox" name="serialSelect"/>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="intervalSelect">
+            <property name="minimum">
+             <number>100</number>
+            </property>
+            <property name="maximum">
+             <number>2000</number>
+            </property>
+            <property name="singleStep">
+             <number>50</number>
+            </property>
+            <property name="value">
+             <number>250</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="Line" name="intervalLine">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="intervalLabel">
+            <property name="text">
+             <string>Read Interval (mSec)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QFrame" name="placeHolderFrame">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QCustomPlot" name="graphWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>250</height>
+       </size>
+      </property>
+      <zorder>serialFrame</zorder>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>479</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionUpdate_Serial_Ports"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Graph"/>
+    <addaction name="actionSave_Data"/>
+   </widget>
+   <addaction name="menuMenu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSave_Graph">
+   <property name="text">
+    <string>Save Graph</string>
+   </property>
+  </action>
+  <action name="actionSave_Data">
+   <property name="text">
+    <string>Save Data</string>
+   </property>
+  </action>
+  <action name="actionUpdate_Serial_Ports">
+   <property name="text">
+    <string>Update Serial Ports</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
