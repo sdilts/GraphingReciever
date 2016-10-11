@@ -44,7 +44,6 @@ void DataLogger::graphData(QVector<unsigned int> data) {
 void DataLogger::on_recordButton_toggled(bool checked)
 {
      if(checked) {
-         qDebug("button on");
         disableSerialConfig();
          if(!first) {
              ui->graphWidget->clearGraphs();
@@ -54,8 +53,6 @@ void DataLogger::on_recordButton_toggled(bool checked)
          rec->startRecording(ui->serialSelect->currentText(), ui->intervalSelect->value());
 
      } else {
-         qDebug("button off");
-
          rec->stopRecording(false);
          enableSerialConfig();
          ui->graphWidget->rescaleAxes();

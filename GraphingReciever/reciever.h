@@ -13,7 +13,6 @@ class Reciever : public QObject
 {
     Q_OBJECT
 public:
-    const static char sigs[3];
     //const static qint sigs[3];
 
     explicit Reciever(QObject *parent = 0);
@@ -21,16 +20,19 @@ public:
 
    QVector< QVector <QString> > updateSerialPorts();
 
-    bool setSerial(QString portName);
     void startRecording(QString portName, int interval);
     void stopRecording(bool error);
-
-    void sendCollectDataSignal();
 
 private:
     bool done;
     QSerialPort* port;
     QTimer * timer;
+    const static char sigs[3];
+    //const static QVector<const int> inputs;
+
+    bool setSerial(QString portName);
+    void sendCollectDataSignal();
+    unsigned int readBytes(int numBytes);
 
 signals:
     void dataRecieved(QVector<unsigned int> data);

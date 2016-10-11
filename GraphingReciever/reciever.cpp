@@ -56,24 +56,41 @@ bool Reciever::setSerial(QString newPort) {
 }
 
 void Reciever::sendCollectDataSignal() {
-    port->write(&sigs[0],1);
+     port->write(&sigs[0],1);
 }
 
 void Reciever::record() {
+    //qDebug() << port->bytesAvailable();
     if(port->bytesAvailable() >= BUFF_SIZE) {
         char buff[BUFF_SIZE];
         port->read(buff, BUFF_SIZE);
-        port->clear();
+        //port->clear();
         QVector<unsigned int > data(BUFF_SIZE/2);
 
         for(int i = 0, j = 0; i < BUFF_SIZE/2; i += 1, j +=2) {
             data[i] = (int) buff[j] | buff[j+1] << 8;
         }
-
-        if(!done) {
-            sendCollectDataSignal();
-        }
         emit dataRecieved(data);
+    }
+    if(!done) {
+        sendCollectDataSignal();
+    }
+}
+
+
+unsigned int Reciever::readBytes(int numBytes) {
+    if(port->isOpen()) {
+        char* buff = new char[numBytes];
+        port->read(buff, numBytes);
+        unsigned int result = 0;
+        for(int i = 0; i < numBytes; i++) {
+            result = result | buff[i] << (i * 8);
+        }
+        delete buff;
+        return result;
+    } else {
+        emit error("Error: port is not open");
+        return -1;
     }
 }
 
