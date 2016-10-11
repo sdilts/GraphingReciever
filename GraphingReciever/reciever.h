@@ -24,15 +24,19 @@ public:
     void stopRecording(bool error);
 
 private:
-    bool done;
+    bool done; //used to help control the state of the program
+    const static char sigs[3]; //stores signals used to communicate with the arduino
+    const static QVector<int> inputs; //stores the number bytes in input: see readme.txt
+    const static int bufferSize;
+
     QSerialPort* port;
     QTimer * timer;
-    const static char sigs[3];
-    //const static QVector<const int> inputs;
+
 
     bool setSerial(QString portName);
     void sendCollectDataSignal();
     unsigned int readBytes(int numBytes);
+    unsigned int getNumber(unsigned char buff[], int size);
 
 signals:
     void dataRecieved(QVector<unsigned int> data);

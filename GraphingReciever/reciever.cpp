@@ -5,9 +5,6 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
-//TODO: change to static const member variables:
-#define BAUD_RATE 9600
-#define BUFF_SIZE 6 //in bytes (2 ints)
 /*
  * sigs are the characters that control the board:
  * 0. Send more data
@@ -16,6 +13,8 @@
  */
 //TODO: change to individual variables:
 const char Reciever::sigs[] = {17, 18, 19};
+const QVector<int> Reciever::inputs = {4, 2, 2};
+const int Reciever::bufferSize = 8;
 
 Reciever::Reciever(QObject *parent) : QObject(parent)
 {
@@ -23,7 +22,6 @@ Reciever::Reciever(QObject *parent) : QObject(parent)
     //init objects
     port = new QSerialPort(this);
     timer=  new QTimer(this);
-
     connect(timer, SIGNAL(timeout()), this, SLOT(record()));
     connect(port, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(handleSerialError(QSerialPort::SerialPortError)));
 }
@@ -61,14 +59,15 @@ void Reciever::sendCollectDataSignal() {
 
 void Reciever::record() {
     //qDebug() << port->bytesAvailable();
-    if(port->bytesAvailable() >= BUFF_SIZE) {
-        char buff[BUFF_SIZE];
-        port->read(buff, BUFF_SIZE);
-        //port->clear();
-        QVector<unsigned int > data(BUFF_SIZE/2);
-
-        for(int i = 0, j = 0; i < BUFF_SIZE/2; i += 1, j +=2) {
-            data[i] = (int) buff[j] | buff[j+1] << 8;
+    if(port->bytesAvailable() >= bufferSize) {
+        char buff[bufferSize];
+        port->read(buff, bufferSize);
+        qDebug() << "New Data";
+        QVector<unsigned int > data(inputs.length());
+        for(int i = 0, j = 0; i < inputs.length(); i += 1) {
+            data[i] = getNumber((unsigned char*) (buff +j), inputs[i]);
+            qDebug("%x", data[i]);
+            j += inputs[i];
         }
         emit dataRecieved(data);
     }
@@ -77,6 +76,15 @@ void Reciever::record() {
     }
 }
 
+unsigned int Reciever::getNumber(unsigned char buff[], int size) {
+    unsigned int result = 0;
+    //qDebug("%x", result);
+    for(int i = 0; i < size; i++) {
+        int number = (int) buff[i];
+        result += number << (i *8);
+    }
+    return result;
+}
 
 unsigned int Reciever::readBytes(int numBytes) {
     if(port->isOpen()) {
@@ -117,6 +125,7 @@ void Reciever::stopRecording(bool error) {
         this->record();
     }
     if(port->isOpen()) {
+        qInfo() << "Closing Serial Port";
         port->close();
     }
 }
