@@ -1,5 +1,7 @@
 /*
- * This program reads sensor inputs and sends them over serial when requested.
+ * This program sends test data over serial when requested.
+ * Used for debugging communication issues and testing new 
+ * features of the main arduino program, DataLogger.
  * 
  * @author Stuart Dilts
  * @version 10.10.16
