@@ -7,17 +7,18 @@
 #include <QMessageBox>
 
 
-//how far apart each data point is
-#define LISTEN_INTERVAL 250
 //range of display on the graph:
-#define UPDATE_INTERVAL 10
+#define UPDATE_INTERVAL 50
 
 DataLogger::DataLogger(QWidget *parent) : QMainWindow(parent), ui(new Ui::DataLogger)
 {
     ui->setupUi(this);
     rec = new Reciever(this);
+    QString fileLocation = QDir::homePath();
+    qDebug() << fileLocation;
 
-    connect(rec, SIGNAL(dataRecieved(QVector <unsigned int>)), this, SLOT(graphData(QVector <unsigned int>)));
+    //connect(rec, SIGNAL(dataRecieved(QVector<uint>)), this, SLOT(graphData(QVector<uint>)));
+    connect(rec, SIGNAL(dataRecieved(QVector <unsigned int>)), this, SLOT(processData(QVector <unsigned int>)));
     connect(rec, &Reciever::error, this, &DataLogger::appError);
     setupGraphs();
     updateSerialPortData();
@@ -32,21 +33,41 @@ DataLogger::~DataLogger()
 }
 
 //slots:
-void DataLogger::graphData(QVector<unsigned int> data) {
-    QCustomPlot* plot = ui->graphWidget;
-    plot->graph(0)->addData(data[0], (int) data[1]);
-    plot->graph(1)->addData(data[0], (int) data[2]);
-    plot->xAxis->setRange(data[0], UPDATE_INTERVAL, Qt::AlignCenter);
-    //delete data;
+void DataLogger::processData(QVector<unsigned int> data) {
+    unsigned int time = data.at(0) / 100;
+    //convert to voltages:
+    double salinity = (int) data.at(1) * (5.0 / 1023.0);
+    double pressure = (int) data.at(2) * (5.0 / 1032.0);
+    graphSalinity(time, salinity);
+    graphPressure(time, pressure);
+    emit saveData(time, salinity, pressure);
+}
+
+void DataLogger::graphSalinity(unsigned int time, double data) {
+    QCustomPlot* plot = ui->salinityGraph;
+    plot->graph(0)->addData(time, data);
+    plot->xAxis->setRange(time, UPDATE_INTERVAL, Qt::AlignCenter);
     plot->replot();
 }
+
+void DataLogger::graphPressure(unsigned int time, double data) {
+    QCustomPlot* plot = ui->pressureGraph;
+    plot->graph(0)->addData(time, data);
+    plot->xAxis->setRange(time, UPDATE_INTERVAL, Qt::AlignCenter);
+    plot->replot();
+}
+
+//void DataLogger::recordData(QVector<unsigned int> data) {
+
+//}
 
 void DataLogger::on_recordButton_toggled(bool checked)
 {
      if(checked) {
         disableSerialConfig();
          if(!first) {
-             ui->graphWidget->clearGraphs();
+             ui->pressureGraph->clearGraphs();
+             ui->salinityGraph->clearGraphs();
              configGraphs();
          } else first = false;
 
@@ -55,8 +76,10 @@ void DataLogger::on_recordButton_toggled(bool checked)
      } else {
          rec->stopRecording(false);
          enableSerialConfig();
-         ui->graphWidget->rescaleAxes();
-         ui->graphWidget->replot();
+         ui->pressureGraph->rescaleAxes();
+         ui->pressureGraph->replot();
+         ui->salinityGraph->rescaleAxes();
+         ui->salinityGraph->replot();
      }
 }
 
@@ -91,10 +114,16 @@ void DataLogger::enableSerialConfig() {
 
 //setup functions
 void DataLogger::setupGraphs() {
-    QCustomPlot* plot = ui->graphWidget;
+    QCustomPlot* plot = ui->pressureGraph;
     plot->legend->setVisible(true);
-    plot->yAxis->setRange(0, 100);
+    plot->yAxis->setRange(0, 5);
     plot->xAxis->setRange(0, UPDATE_INTERVAL, Qt::AlignCenter);
+
+    plot = ui->salinityGraph;
+    plot->legend->setVisible(true);
+    plot->yAxis->setRange(0, 5);
+    plot->xAxis->setRange(0, UPDATE_INTERVAL, Qt::AlignCenter);
+
     configGraphs();
 
 }
@@ -106,16 +135,19 @@ void DataLogger::configGraphs() {
     myScatter.setBrush(Qt::white);
     myScatter.setSize(5);
 
-    QCustomPlot* plot = ui->graphWidget;
+    QCustomPlot * plot = ui->pressureGraph;
     plot->addGraph();
     plot->graph(0)->setPen(QPen(Qt::blue));
     plot->graph(0)->setName("pressure");
     plot->graph(0)->setScatterStyle(myScatter);
+    plot->yAxis->setRange(0, 5);
 
+    plot = ui->salinityGraph;
     plot->addGraph();
-    plot->graph(1)->setPen(QPen(Qt::red));
-    plot->graph(1)->setName("Salinity");
-    plot->graph(1)->setScatterStyle(myScatter);
+    plot->graph(0)->setPen(QPen(Qt::red));
+    plot->graph(0)->setName("Salinity");
+    plot->graph(0)->setScatterStyle(myScatter);
+    plot->yAxis->setRange(0, 5);
 }
 
 void DataLogger::updateSerialPortData() {
@@ -127,3 +159,10 @@ void DataLogger::updateSerialPortData() {
     }
     qInfo() << "Serial ports updated";
 }
+
+//void DataLogger::on_actionChoose_Save_Directory_triggered()
+//{
+//    fileLocation = QFileDialog::getSaveFileName(this, tr("SaveLocation"),
+//                                                    fileLocation,
+//                                                    tr("*.txt;;*.csv"));
+//}

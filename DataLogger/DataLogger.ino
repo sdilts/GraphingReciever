@@ -10,13 +10,19 @@
 #define RESET_COUNTER 18
 #define TERMINATE 19
 
+//sensor ports:
+#define SALT A0
+#define PRESSURE A5
+
 int inByte = 0;         // incoming serial byte
 
 //anything sent in the other direction is unsigned:
 unsigned long secsFromReset = 0;
-int test = 120;
 
 void setup() {
+  pinMode(SALT, INPUT);
+  pinMode(PRESSURE, INPUT);
+  
   // start serial port at 9600 bps:
   Serial.begin(9600);
   while (!Serial) {
@@ -32,13 +38,10 @@ void loop() {
     inByte = Serial.read();
     if(inByte == RESPOND) {
       sendLong(millis() - secsFromReset);
-      //sendLong(longTest);
-      sendInt(test+2);
-      sendInt(test +4);
+      sendInt(analogRead(SALT));
+      sendInt(analogRead(PRESSURE));
       
-      test = test + 1;
     } else if(inByte == RESET_COUNTER) {
-        test = 120;;
         secsFromReset = millis();
     } else if(inByte == TERMINATE) {
       //explode
