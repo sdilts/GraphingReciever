@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++11
 
-TARGET = GUITest
+TARGET = GraphingReciever
 TEMPLATE = app
 
 
@@ -22,6 +22,6 @@ SOURCES += main.cpp\
 HEADERS  += datalogger.h \
     qcustomplot.h \
     reciever.h \
-    globaldefs.h
+    constants.h
 
 FORMS    += datalogger.ui
